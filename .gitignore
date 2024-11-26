@@ -1,5 +1,5 @@
 logs/
 .env
-venv/
+env/
 __pycache__/
 .idea/
