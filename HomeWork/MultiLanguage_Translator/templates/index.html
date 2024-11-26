@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AI Translator</title>
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='css/main.css') }}"
+    />
+  </head>
+  <body>
+    <div class="container">
+      <h1>AI-Powered Multilingual Translator 🌍</h1>
+      <form id="translationForm">
+        <label for="text">Enter the text to translate:</label>
+        <textarea
+          id="text"
+          name="text"
+          placeholder="Type your text here..."
+          required
+        ></textarea>
+
+        <label for="target_language"
+          >Enter the target language (e.g., Spanish):</label
+        >
+        <input
+          id="target_language"
+          name="target_language"
+          type="text"
+          placeholder="e.g., Spanish"
+          required
+        />
+
+        <div>
+          <input
+            id="want_explanation"
+            name="want_explanation"
+            type="checkbox"
+          />
+          <label for="want_explanation"
+            >Request an explanation of the translation</label
+          >
+        </div>
+
+        <button type="submit">Translate</button>
+      </form>
+
+      <div id="result" class="result-section" style="display: none">
+        <h2>Translation Result:</h2>
+        <p id="sourceLanguage"></p>
+        <p id="translatedText"></p>
+      </div>
+    </div>
+
+    <script>
+      document
+        .getElementById("translationForm")
+        .addEventListener("submit", async function (e) {
+          e.preventDefault();
+
+          // Collect form data
+          const text = document.getElementById("text").value;
+          const targetLanguage =
+            document.getElementById("target_language").value;
+          const wantExplanation =
+            document.getElementById("want_explanation").checked;
+
+          // Show loading message
+          const resultSection = document.getElementById("result");
+          resultSection.style.display = "none";
+
+          // Send data to the backend
+          try {
+            const response = await fetch("/translate", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/x-www-form-urlencoded",
+              },
+              body: new URLSearchParams({
+                text: text,
+                target_language: targetLanguage,
+                want_explanation: wantExplanation,
+              }),
+            });
+
+            const data = await response.json();
+
+            if (data.error) {
+              alert(`Error: ${data.error}`);
+            } else {
+              // Show results
+              document.getElementById(
+                "sourceLanguage"
+              ).textContent = `Detected Source Language: ${data.source_language}`;
+              document.getElementById(
+                "translatedText"
+              ).textContent = `Translation: ${data.translation}`;
+              resultSection.style.display = "block";
+            }
+          } catch (error) {
+            console.error("Error:", error);
+            alert("An error occurred. Please try again.");
+          }
+        });
+    </script>
+  </body>
+</html>
